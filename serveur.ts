@@ -162,6 +162,9 @@ app.post('/blogpost', upload.single('image'), (req, res) => {
   });
 });
 
+////////////////////////////
+//  GET /profil           //
+///////////////////////////
 // Route pour récupérer les informations du profil utilisateur
 app.get('/profil', (req, res) => {
   const { pseudo } = req.query;
@@ -182,6 +185,59 @@ app.get('/profil', (req, res) => {
       console.log('Utilisateur non trouvé');
       res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
+  });
+});
+
+////////////////////////////
+//  PUT /profil           //
+///////////////////////////
+// Route pour mettre à jour les informations du profil utilisateur
+app.put('/profil', (req, res) => {
+  const { pseudo, prenom, nom, email, age, telephone } = req.body;
+
+  // Requête pour mettre à jour les informations de l'utilisateur
+  const sql = 'UPDATE login SET prenom = ?, nom = ?, email = ?, age = ?, telephone = ? WHERE pseudo = ?';
+  db.query(sql, [prenom, nom, email, age, telephone, pseudo], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la mise à jour des informations de profil :', err);
+      res.status(500).json({ error: 'Une erreur est survenue lors de la mise à jour des informations de profil' });
+      return;
+    }
+
+    if (results.affectedRows > 0) {
+      console.log('Informations de profil mises à jour avec succès');
+      res.status(200).json({ message: 'Informations de profil mises à jour avec succès' });
+    } else {
+      console.log('Utilisateur non trouvé');
+      res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+  });
+});
+
+// Route pour récupérer tous les cours
+app.get('/agenda', (req, res) => {
+  const sql = 'SELECT * FROM agenda';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des cours :', err);
+      res.status(500).json({ error: 'Une erreur est survenue lors de la récupération des cours' });
+      return;
+    }
+    res.status(200).json(results);
+  });
+});
+
+app.post('/agenda', (req, res) => {
+  const { date, time, duration, title, description, creator } = req.body;
+  const sql = 'INSERT INTO agenda (date, time, duration, title, description, creator) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(sql, [date, time, duration, title, description, creator], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de l\'ajout du cours :', err);
+      res.status(500).json({ error: 'Une erreur est survenue lors de l\'ajout du cours' });
+      return;
+    }
+    console.log('Cours ajouté avec succès');
+    res.status(200).json({ message: 'Cours ajouté avec succès' });
   });
 });
 
